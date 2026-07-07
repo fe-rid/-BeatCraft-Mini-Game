@@ -1,0 +1,2051 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BeatCraft — focused, fast, and a pleasure to use.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --sky: #38bdf8;
+        --yellow: #ffd23f;
+        --coral: #ff6b6b;
+        --green: #4ade80;
+        --white: #ffffff;
+        --navy: #161b3a;
+        --navy-2: #252b5a;
+        --cream: #fff6e0;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        color: var(--navy);
+        background:
+          radial-gradient(
+            circle at 12% 18%,
+            rgba(255, 210, 63, 0.22) 0%,
+            transparent 42%
+          ),
+          radial-gradient(
+            circle at 88% 72%,
+            rgba(255, 107, 107, 0.2) 0%,
+            transparent 42%
+          ),
+          radial-gradient(
+            circle at 50% 50%,
+            rgba(56, 189, 248, 0.12) 0%,
+            transparent 60%
+          ),
+          linear-gradient(180deg, #fff6e0 0%, #ffe2c7 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .font-display {
+        font-family: "Fredoka", sans-serif;
+        letter-spacing: -0.015em;
+      }
+
+      /* Chunky UI primitives */
+      .chunky-card {
+        background: #fff;
+        border: 4px solid var(--navy);
+        border-radius: 28px;
+        box-shadow: 10px 10px 0 var(--navy);
+      }
+      .chunky-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 24px;
+        font-family: "Fredoka", sans-serif;
+        font-weight: 600;
+        font-size: 17px;
+        border: 4px solid var(--navy);
+        border-radius: 18px;
+        box-shadow: 6px 6px 0 var(--navy);
+        cursor: pointer;
+        user-select: none;
+        background: #fff;
+        color: var(--navy);
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease;
+      }
+      .chunky-btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 8px 8px 0 var(--navy);
+      }
+      .chunky-btn:active {
+        transform: translate(6px, 6px);
+        box-shadow: 0 0 0 var(--navy);
+      }
+      .chunky-btn.primary {
+        background: var(--coral);
+        color: #fff;
+      }
+      .chunky-btn.sky {
+        background: var(--sky);
+        color: var(--navy);
+      }
+      .chunky-btn.yellow {
+        background: var(--yellow);
+        color: var(--navy);
+      }
+      .chunky-btn.green {
+        background: var(--green);
+        color: var(--navy);
+      }
+      .chunky-btn.icon {
+        padding: 0;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+      }
+      .chunky-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: 6px 6px 0 var(--navy) !important;
+      }
+
+      /* Floating background shapes */
+      .float-shape {
+        position: fixed;
+        border: 4px solid var(--navy);
+        pointer-events: none;
+        z-index: 0;
+      }
+      @keyframes float1 {
+        0%,
+        100% {
+          transform: translate(0, 0) rotate(0);
+        }
+        50% {
+          transform: translate(18px, -26px) rotate(14deg);
+        }
+      }
+      @keyframes float2 {
+        0%,
+        100% {
+          transform: translate(0, 0) rotate(0);
+        }
+        50% {
+          transform: translate(-22px, 18px) rotate(-12deg);
+        }
+      }
+
+      /* Equalizer */
+      .eq {
+        display: flex;
+        gap: 5px;
+        align-items: flex-end;
+        height: 42px;
+      }
+      .eq span {
+        display: block;
+        width: 8px;
+        border-radius: 3px 3px 0 0;
+        border: 2.5px solid var(--navy);
+        animation: eq 1s ease-in-out infinite alternate;
+        box-shadow: 2px 2px 0 var(--navy);
+      }
+      @keyframes eq {
+        0% {
+          height: 25%;
+        }
+        100% {
+          height: 100%;
+        }
+      }
+      body.reduced-motion .eq span,
+      body.reduced-motion .float-shape {
+        animation: none !important;
+      }
+
+      /* Screens */
+      .screen {
+        display: none;
+        animation: fadeIn 0.35s ease;
+      }
+      .screen.active {
+        display: flex;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Level cards */
+      .level-card {
+        border: 4px solid var(--navy);
+        border-radius: 20px;
+        box-shadow: 6px 6px 0 var(--navy);
+        padding: 16px;
+        cursor: pointer;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .level-card:hover:not(.locked) {
+        transform: translate(-2px, -2px);
+        box-shadow: 8px 8px 0 var(--navy);
+      }
+      .level-card.locked {
+        background: #e5e7ec;
+        cursor: not-allowed;
+      }
+      .level-card .pattern {
+        position: absolute;
+        inset: 0;
+        opacity: 0.18;
+        pointer-events: none;
+        background-image: radial-gradient(
+          circle,
+          var(--navy) 2px,
+          transparent 2px
+        );
+        background-size: 18px 18px;
+      }
+
+      /* Key caps */
+      .key-cap {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background: #fff;
+        border: 3.5px solid var(--navy);
+        border-radius: 12px;
+        box-shadow: 3px 3px 0 var(--navy);
+        font-family: "Fredoka", sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      /* HUD pills */
+      .hud-pill {
+        border: 3px solid var(--navy);
+        border-radius: 14px;
+        padding: 8px 14px;
+        min-width: 90px;
+        box-shadow: 3px 3px 0 var(--navy);
+      }
+      .hud-pill .label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .hud-pill .value {
+        font-family: "Fredoka", sans-serif;
+        font-weight: 700;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      /* Canvas */
+      canvas {
+        display: block;
+        background: #0e1330;
+        border-radius: 18px;
+        width: 100%;
+        height: auto;
+        max-width: 480px;
+        aspect-ratio: 480/680;
+        border: 4px solid var(--navy);
+        box-shadow: 6px 6px 0 var(--navy);
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(140%);
+        background: var(--navy);
+        color: #fff;
+        padding: 12px 22px;
+        border-radius: 14px;
+        border: 3px solid var(--navy);
+        box-shadow: 4px 4px 0 var(--coral);
+        font-weight: 700;
+        font-size: 14px;
+        z-index: 100;
+        transition: transform 0.3s ease;
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* Result stars */
+      .result-star {
+        width: 54px;
+        height: 54px;
+        transition: transform 0.3s ease;
+      }
+      .result-star.lit {
+        animation: starPop 0.5s ease;
+      }
+      @keyframes starPop {
+        0% {
+          transform: scale(0) rotate(-30deg);
+        }
+        60% {
+          transform: scale(1.3) rotate(8deg);
+        }
+        100% {
+          transform: scale(1) rotate(0);
+        }
+      }
+
+      /* Subtle pulse for live elements */
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.04);
+        }
+      }
+      .pulse-live {
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+
+      /* Combo flame text */
+      .combo-flame {
+        background: linear-gradient(180deg, #ffd23f 0%, #ff6b6b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      /* Toggle indicator */
+      .toggle-dot {
+        transition: transform 0.2s ease;
+      }
+      .toggled-off {
+        opacity: 0.45;
+      }
+      .toggled-off .toggle-dot {
+        transform: translateX(-14px);
+      }
+
+      /* Mobile lane buttons (visible on touch) */
+      .lane-touch {
+        display: none;
+      }
+      @media (hover: none) {
+        .lane-touch {
+          display: grid;
+        }
+      }
+
+      /* Sticky stage bar */
+      .stage-wrap {
+        position: relative;
+        z-index: 5;
+      }
+
+      /* Focus ring */
+      button:focus-visible,
+      .level-card:focus-visible {
+        outline: 3px solid var(--sky);
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Floating shapes (decor) -->
+    <div
+      class="float-shape"
+      style="
+        top: 8%;
+        left: 3%;
+        width: 78px;
+        height: 78px;
+        background: var(--coral);
+        border-radius: 24%;
+        animation: float1 9s ease-in-out infinite;
+      "
+    ></div>
+    <div
+      class="float-shape"
+      style="
+        top: 18%;
+        right: 5%;
+        width: 60px;
+        height: 60px;
+        background: var(--sky);
+        border-radius: 50%;
+        animation: float2 10s ease-in-out infinite;
+      "
+    ></div>
+    <div
+      class="float-shape"
+      style="
+        bottom: 32%;
+        left: 2%;
+        width: 70px;
+        height: 70px;
+        background: var(--yellow);
+        border-radius: 18%;
+        animation: float1 11s ease-in-out infinite;
+      "
+    ></div>
+    <div
+      class="float-shape"
+      style="
+        bottom: 12%;
+        right: 3%;
+        width: 54px;
+        height: 54px;
+        background: var(--green);
+        border-radius: 30% 70% 70% 30%;
+        animation: float2 8s ease-in-out infinite;
+      "
+    ></div>
+
+    <!-- Header -->
+    <header
+      class="relative z-10 max-w-6xl mx-auto px-5 py-5 flex items-center justify-between"
+    >
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <div
+            class="w-12 h-12 bg-[var(--coral)] border-[3.5px] border-[var(--navy)] rounded-2xl shadow-[4px_4px_0_var(--navy)] flex items-center justify-center pulse-live"
+          >
+            <div class="flex gap-1 items-end h-5">
+              <span
+                class="block w-1 bg-white rounded-full"
+                style="height: 40%"
+              ></span>
+              <span
+                class="block w-1 bg-white rounded-full"
+                style="height: 90%"
+              ></span>
+              <span
+                class="block w-1 bg-white rounded-full"
+                style="height: 60%"
+              ></span>
+              <span
+                class="block w-1 bg-white rounded-full"
+                style="height: 100%"
+              ></span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="font-display font-bold text-2xl leading-none">
+            BeatCraft
+          </div>
+          <div class="text-[11px] font-semibold tracking-wide opacity-60 mt-1">
+            A pocket rhythm game
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          id="audio-toggle"
+          class="chunky-btn icon"
+          aria-label="Toggle sound"
+          title="Sound"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.6"
+            viewBox="0 0 24 24"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M11 5L6 9H2v6h4l5 4V5z" />
+            <path d="M19 5a10 10 0 010 14M15.5 8.5a5 5 0 010 7" />
+          </svg>
+        </button>
+        <button
+          id="motion-toggle"
+          class="chunky-btn icon"
+          aria-label="Toggle reduced motion"
+          title="Reduced motion"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.6"
+            viewBox="0 0 24 24"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section
+      class="relative z-10 max-w-5xl mx-auto px-5 pt-4 pb-10 text-center"
+    >
+      <span
+        class="inline-flex items-center gap-2 px-4 py-1.5 bg-[var(--yellow)] border-[3px] border-[var(--navy)] rounded-full font-display font-semibold text-sm shadow-[3px_3px_0_var(--navy)] mb-6"
+      >
+        <span class="w-2 h-2 rounded-full bg-[var(--coral)]"></span>
+        Casual rhythm · 60-second sessions
+      </span>
+      <div class="eq mx-auto mb-5">
+        <span style="background: var(--coral); animation-delay: -0.2s"></span>
+        <span style="background: var(--yellow); animation-delay: -0.5s"></span>
+        <span style="background: var(--green); animation-delay: -0.8s"></span>
+        <span style="background: var(--sky); animation-delay: -0.3s"></span>
+        <span style="background: var(--coral); animation-delay: -0.6s"></span>
+        <span style="background: var(--yellow); animation-delay: -0.1s"></span>
+        <span style="background: var(--green); animation-delay: -0.9s"></span>
+      </div>
+      <h1
+        class="font-display font-bold text-6xl md:text-8xl leading-[.95] mb-4"
+      >
+        Beat<span class="text-[var(--coral)]">Craft</span>
+      </h1>
+      <p class="font-display text-2xl md:text-3xl font-medium mb-3">
+        focused, fast, and a pleasure to use.
+      </p>
+      <p
+        class="text-base md:text-lg opacity-70 max-w-xl mx-auto leading-relaxed"
+      >
+        Tap falling beats in four lanes. Stack combos, unlock new levels, and
+        chase perfect runs — no tutorials, no friction, just rhythm.
+      </p>
+      <div class="flex flex-wrap justify-center gap-3 mt-7">
+        <button class="chunky-btn primary text-lg" onclick="showLevels()">
+          Jump In
+        </button>
+        <button
+          class="chunky-btn yellow text-lg"
+          onclick="
+            document
+              .getElementById('features')
+              .scrollIntoView({ behavior: 'smooth' })
+          "
+        >
+          How to Play
+        </button>
+      </div>
+    </section>
+
+    <!-- Game Stage -->
+    <section class="stage-wrap max-w-5xl mx-auto px-5 pb-14">
+      <div class="chunky-card p-5 md:p-7 relative">
+        <!-- HUD bar -->
+        <div id="hud-top" class="hidden md:grid grid-cols-4 gap-3 mb-5">
+          <div class="hud-pill bg-[var(--navy)] text-white">
+            <div class="label">Score</div>
+            <div id="hud-score" class="value">0</div>
+          </div>
+          <div class="hud-pill bg-[var(--yellow)]">
+            <div class="label">Combo</div>
+            <div id="hud-combo" class="value">0×</div>
+          </div>
+          <div class="hud-pill bg-[var(--sky)]">
+            <div class="label">Accuracy</div>
+            <div id="hud-accuracy" class="value">100%</div>
+          </div>
+          <div class="hud-pill bg-[var(--coral)] text-white">
+            <div class="label">Lives</div>
+            <div id="hud-lives" class="value">♥♥♥</div>
+          </div>
+        </div>
+
+        <!-- Screen container -->
+        <div
+          id="screens"
+          class="relative min-h-[600px] flex items-center justify-center"
+        >
+          <!-- Start Screen -->
+          <div
+            id="screen-start"
+            class="screen active flex-col items-center text-center py-6 w-full"
+          >
+            <div
+              class="inline-flex items-center gap-2 px-3 py-1 bg-[var(--green)] border-[3px] border-[var(--navy)] rounded-full text-xs font-bold uppercase tracking-wide shadow-[2px_2px_0_var(--navy)] mb-4"
+            >
+              Ready when you are
+            </div>
+            <h2 class="font-display font-bold text-4xl md:text-5xl mb-3">
+              Pick your tempo
+            </h2>
+            <p class="opacity-70 max-w-md mb-6">
+              Four lanes. Four keys. When a beat reaches the line, tap its key.
+              Hit perfectly to keep your combo alive.
+            </p>
+
+            <div class="flex gap-3 mb-2">
+              <div
+                class="key-cap"
+                style="background: var(--coral); color: #fff"
+              >
+                D
+              </div>
+              <div class="key-cap" style="background: var(--yellow)">F</div>
+              <div class="key-cap" style="background: var(--green)">J</div>
+              <div class="key-cap" style="background: var(--sky)">K</div>
+            </div>
+            <p class="text-xs opacity-60 mb-6">or tap the lanes on touch</p>
+
+            <div class="flex flex-wrap gap-3 justify-center">
+              <button class="chunky-btn primary text-lg" onclick="showLevels()">
+                Play Now
+              </button>
+              <button class="chunky-btn" onclick="quickStart()">
+                Quick Start · Level 1
+              </button>
+            </div>
+
+            <div
+              class="grid grid-cols-3 gap-3 mt-8 w-full max-w-md text-center"
+            >
+              <div
+                class="bg-[var(--green)] border-[3px] border-[var(--navy)] rounded-xl p-2 shadow-[3px_3px_0_var(--navy)]"
+              >
+                <div class="text-[10px] font-bold uppercase opacity-70">
+                  Perfect
+                </div>
+                <div class="font-display font-bold text-xl">+100</div>
+              </div>
+              <div
+                class="bg-[var(--yellow)] border-[3px] border-[var(--navy)] rounded-xl p-2 shadow-[3px_3px_0_var(--navy)]"
+              >
+                <div class="text-[10px] font-bold uppercase opacity-70">
+                  Good
+                </div>
+                <div class="font-display font-bold text-xl">+50</div>
+              </div>
+              <div
+                class="bg-[var(--coral)] text-white border-[3px] border-[var(--navy)] rounded-xl p-2 shadow-[3px_3px_0_var(--navy)]"
+              >
+                <div class="text-[10px] font-bold uppercase opacity-70">
+                  Miss
+                </div>
+                <div class="font-display font-bold text-xl">−1♥</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Level Select -->
+          <div id="screen-levels" class="screen flex-col w-full">
+            <div class="flex items-center justify-between mb-5">
+              <button
+                class="chunky-btn icon"
+                onclick="showStart()"
+                aria-label="Back"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  viewBox="0 0 24 24"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <h2 class="font-display font-bold text-3xl">Choose a level</h2>
+              <div class="w-12"></div>
+            </div>
+            <div
+              id="level-grid"
+              class="grid grid-cols-2 md:grid-cols-3 gap-4"
+            ></div>
+          </div>
+
+          <!-- Game Screen -->
+          <div id="screen-game" class="screen flex-col items-center w-full">
+            <div class="w-full max-w-[480px]">
+              <!-- Mobile HUD -->
+              <div class="md:hidden grid grid-cols-4 gap-2 mb-3">
+                <div
+                  class="hud-pill bg-[var(--navy)] text-white text-center"
+                  style="min-width: 0; padding: 6px 4px"
+                >
+                  <div class="label" style="font-size: 9px">Score</div>
+                  <div id="hud-score-m" class="value" style="font-size: 16px">
+                    0
+                  </div>
+                </div>
+                <div
+                  class="hud-pill bg-[var(--yellow)] text-center"
+                  style="min-width: 0; padding: 6px 4px"
+                >
+                  <div class="label" style="font-size: 9px">Combo</div>
+                  <div id="hud-combo-m" class="value" style="font-size: 16px">
+                    0×
+                  </div>
+                </div>
+                <div
+                  class="hud-pill bg-[var(--sky)] text-center"
+                  style="min-width: 0; padding: 6px 4px"
+                >
+                  <div class="label" style="font-size: 9px">Acc</div>
+                  <div
+                    id="hud-accuracy-m"
+                    class="value"
+                    style="font-size: 16px"
+                  >
+                    100%
+                  </div>
+                </div>
+                <div
+                  class="hud-pill bg-[var(--coral)] text-white text-center"
+                  style="min-width: 0; padding: 6px 4px"
+                >
+                  <div class="label" style="font-size: 9px">Lives</div>
+                  <div id="hud-lives-m" class="value" style="font-size: 16px">
+                    ♥♥♥
+                  </div>
+                </div>
+              </div>
+
+              <div class="relative">
+                <canvas id="game-canvas" width="480" height="680"></canvas>
+              </div>
+
+              <!-- Touch lane buttons -->
+              <div class="lane-touch grid-cols-4 gap-2 mt-3">
+                <button
+                  class="chunky-btn lane-btn"
+                  style="background: var(--coral); color: #fff; padding: 18px 0"
+                  data-lane="0"
+                >
+                  D
+                </button>
+                <button
+                  class="chunky-btn lane-btn"
+                  style="background: var(--yellow); padding: 18px 0"
+                  data-lane="1"
+                >
+                  F
+                </button>
+                <button
+                  class="chunky-btn lane-btn"
+                  style="background: var(--green); padding: 18px 0"
+                  data-lane="2"
+                >
+                  J
+                </button>
+                <button
+                  class="chunky-btn lane-btn"
+                  style="background: var(--sky); padding: 18px 0"
+                  data-lane="3"
+                >
+                  K
+                </button>
+              </div>
+
+              <div class="hidden md:flex items-center justify-between mt-4">
+                <button
+                  class="chunky-btn icon"
+                  onclick="quitGame()"
+                  aria-label="Quit"
+                  title="Quit (Esc)"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    viewBox="0 0 24 24"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <div class="text-sm font-semibold opacity-70">
+                  Press <span class="font-mono font-bold">D F J K</span> ·
+                  <span class="font-mono font-bold">Space</span> to pause
+                </div>
+                <button
+                  class="chunky-btn icon"
+                  onclick="togglePause()"
+                  aria-label="Pause"
+                  title="Pause (Space)"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    viewBox="0 0 24 24"
+                    stroke-linecap="round"
+                  >
+                    <path d="M10 4v16M18 4v16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Screen -->
+          <div
+            id="screen-results"
+            class="screen flex-col items-center text-center w-full py-4"
+          >
+            <div
+              id="results-title"
+              class="font-display font-bold text-4xl md:text-5xl mb-2"
+            >
+              Level Complete!
+            </div>
+            <div id="results-subtitle" class="opacity-70 mb-5">
+              Nice run — here's how it went.
+            </div>
+
+            <div id="result-stars" class="flex justify-center gap-2 mb-5"></div>
+
+            <div
+              class="bg-[var(--navy)] text-white border-[3.5px] border-[var(--navy)] rounded-2xl px-6 py-3 mb-5 shadow-[5px_5px_0_var(--coral)]"
+            >
+              <div
+                class="text-[10px] font-bold uppercase tracking-wider opacity-70"
+              >
+                Final Score
+              </div>
+              <div
+                id="result-score"
+                class="font-display text-5xl font-bold leading-none"
+              >
+                0
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 w-full max-w-md mb-6">
+              <div
+                class="bg-[var(--green)] border-[3px] border-[var(--navy)] rounded-xl p-3 shadow-[3px_3px_0_var(--navy)]"
+              >
+                <div class="text-[10px] font-bold uppercase opacity-70">
+                  Perfect
+                </div>
+                <div
+                  id="result-perfect"
+                  class="font-display text-2xl font-bold"
+                >
+                  0
+                </div>
+              </div>
+              <div
+                class="bg-[var(--yellow)] border-[3px] border-[var(--navy)] rounded-xl p-3 shadow-[3px_3px_0_var(--navy)]"
+              >
+                <div class="text-[10px] font-bold uppercase opacity-70">
+                  Good
+                </div>
+                <div id="result-good" class="font-display text-2xl font-bold">
+                  0
+                </div>
+              </div>
+              <div
+                class="bg-[var(--coral)] text-white border-[3px] border-[var(--navy)] rounded-xl p-3 shadow-[3px_3px_0_var(--navy)]"
+              >
+                <div class="text-[10px] font-bold uppercase opacity-70">
+                  Miss
+                </div>
+                <div id="result-miss" class="font-display text-2xl font-bold">
+                  0
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 w-full max-w-md mb-6 text-sm">
+              <div
+                class="bg-white border-[3px] border-[var(--navy)] rounded-xl p-2 shadow-[2px_2px_0_var(--navy)]"
+              >
+                <span class="opacity-60">Max combo</span>
+                <span
+                  id="result-combo"
+                  class="font-display font-bold text-lg ml-1"
+                  >0</span
+                >
+              </div>
+              <div
+                class="bg-white border-[3px] border-[var(--navy)] rounded-xl p-2 shadow-[2px_2px_0_var(--navy)]"
+              >
+                <span class="opacity-60">Accuracy</span>
+                <span
+                  id="result-acc"
+                  class="font-display font-bold text-lg ml-1"
+                  >0%</span
+                >
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 justify-center">
+              <button class="chunky-btn" onclick="replayLevel()">
+                Play Again
+              </button>
+              <button
+                id="next-level-btn"
+                class="chunky-btn primary"
+                onclick="nextLevel()"
+              >
+                Next Level
+              </button>
+              <button class="chunky-btn yellow" onclick="showLevels()">
+                Level Select
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-center text-xs opacity-50 mt-4">
+        Tip: use <span class="font-mono font-bold">D F J K</span> on keyboard,
+        or tap the lanes on touch screens.
+      </p>
+    </section>
+
+    <!-- Features / How to Play -->
+    <section id="features" class="relative z-10 max-w-6xl mx-auto px-5 pb-16">
+      <div class="text-center mb-10">
+        <span
+          class="inline-block px-4 py-1.5 bg-[var(--green)] border-[3px] border-[var(--navy)] rounded-full font-display font-semibold text-sm shadow-[3px_3px_0_var(--navy)] mb-4"
+        >
+          How to play
+        </span>
+        <h2 class="font-display font-bold text-4xl md:text-5xl">
+          Three rules. That's it.
+        </h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-5 mb-10">
+        <div class="chunky-card p-6">
+          <div
+            class="w-14 h-14 bg-[var(--coral)] border-[3px] border-[var(--navy)] rounded-2xl flex items-center justify-center mb-4 shadow-[3px_3px_0_var(--navy)]"
+          >
+            <span class="font-display font-bold text-2xl text-white">1</span>
+          </div>
+          <h3 class="font-display font-bold text-2xl mb-2">Watch the lanes</h3>
+          <p class="opacity-70 leading-relaxed">
+            Beats fall down four color-coded lanes. Each lane maps to a key — D,
+            F, J, or K — or just tap the lane directly.
+          </p>
+        </div>
+        <div class="chunky-card p-6">
+          <div
+            class="w-14 h-14 bg-[var(--yellow)] border-[3px] border-[var(--navy)] rounded-2xl flex items-center justify-center mb-4 shadow-[3px_3px_0_var(--navy)]"
+          >
+            <span class="font-display font-bold text-2xl">2</span>
+          </div>
+          <h3 class="font-display font-bold text-2xl mb-2">Hit the line</h3>
+          <p class="opacity-70 leading-relaxed">
+            When a beat reaches the bright line at the bottom, press its key.
+            The closer to perfect, the more points you score.
+          </p>
+        </div>
+        <div class="chunky-card p-6">
+          <div
+            class="w-14 h-14 bg-[var(--green)] border-[3px] border-[var(--navy)] rounded-2xl flex items-center justify-center mb-4 shadow-[3px_3px_0_var(--navy)]"
+          >
+            <span class="font-display font-bold text-2xl">3</span>
+          </div>
+          <h3 class="font-display font-bold text-2xl mb-2">Keep the combo</h3>
+          <p class="opacity-70 leading-relaxed">
+            Every hit grows your combo multiplier. Miss three beats and the
+            level ends — but you can always jump back in.
+          </p>
+        </div>
+      </div>
+
+      <div class="chunky-card p-7">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5 text-center">
+          <div>
+            <div class="font-display font-bold text-5xl text-[var(--coral)]">
+              4
+            </div>
+            <div
+              class="text-xs font-bold uppercase tracking-wider opacity-60 mt-1"
+            >
+              Lanes
+            </div>
+          </div>
+          <div>
+            <div class="font-display font-bold text-5xl text-[var(--yellow)]">
+              9
+            </div>
+            <div
+              class="text-xs font-bold uppercase tracking-wider opacity-60 mt-1"
+            >
+              Levels
+            </div>
+          </div>
+          <div>
+            <div class="font-display font-bold text-5xl text-[var(--green)]">
+              ∞
+            </div>
+            <div
+              class="text-xs font-bold uppercase tracking-wider opacity-60 mt-1"
+            >
+              Combo cap
+            </div>
+          </div>
+          <div>
+            <div class="font-display font-bold text-5xl text-[var(--sky)]">
+              60s
+            </div>
+            <div
+              class="text-xs font-bold uppercase tracking-wider opacity-60 mt-1"
+            >
+              Per session
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="relative z-10 max-w-6xl mx-auto px-5 py-8 text-center">
+      <div class="text-xs opacity-50">
+        BeatCraft — a tiny rhythm game with a big heart. Built for keyboard,
+        mouse, and touch.
+      </div>
+    </footer>
+
+    <div id="toast" class="toast">Hello!</div>
+
+    <script>
+      /* ---------- State ---------- */
+      const state = {
+        screen: "start",
+        currentLevelId: null,
+        unlockedLevels: [1],
+        highScores: {},
+        audioEnabled: true,
+        motionReduced: false,
+      };
+
+      const levels = [
+        {
+          id: 1,
+          name: "First Pulse",
+          bpm: 80,
+          duration: 30,
+          difficulty: "Easy",
+          density: 0.45,
+          color: "coral",
+        },
+        {
+          id: 2,
+          name: "Sunny Step",
+          bpm: 90,
+          duration: 32,
+          difficulty: "Easy",
+          density: 0.5,
+          color: "yellow",
+        },
+        {
+          id: 3,
+          name: "Green Groove",
+          bpm: 100,
+          duration: 34,
+          difficulty: "Easy",
+          density: 0.55,
+          color: "green",
+        },
+        {
+          id: 4,
+          name: "Sky Walk",
+          bpm: 110,
+          duration: 36,
+          difficulty: "Medium",
+          density: 0.62,
+          color: "sky",
+        },
+        {
+          id: 5,
+          name: "Coral Riff",
+          bpm: 118,
+          duration: 38,
+          difficulty: "Medium",
+          density: 0.68,
+          color: "coral",
+        },
+        {
+          id: 6,
+          name: "Yellow Beat",
+          bpm: 125,
+          duration: 40,
+          difficulty: "Medium",
+          density: 0.72,
+          color: "yellow",
+        },
+        {
+          id: 7,
+          name: "Forest Run",
+          bpm: 135,
+          duration: 42,
+          difficulty: "Hard",
+          density: 0.78,
+          color: "green",
+        },
+        {
+          id: 8,
+          name: "Ocean Drive",
+          bpm: 145,
+          duration: 45,
+          difficulty: "Hard",
+          density: 0.82,
+          color: "sky",
+        },
+        {
+          id: 9,
+          name: "Master Craft",
+          bpm: 155,
+          duration: 50,
+          difficulty: "Hard",
+          density: 0.88,
+          color: "coral",
+        },
+      ];
+
+      /* ---------- Audio ---------- */
+      let audioCtx = null;
+      function ensureAudio() {
+        if (!audioCtx) {
+          try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          } catch (e) {}
+        }
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+        return audioCtx;
+      }
+      function playTone(opts) {
+        if (!state.audioEnabled) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const {
+          freq = 440,
+          type = "sine",
+          dur = 0.15,
+          gain = 0.2,
+          slideTo = null,
+          attack = 0.005,
+        } = opts;
+        const t0 = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, t0);
+        if (slideTo)
+          osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(gain, t0 + attack);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + dur + 0.02);
+      }
+      function playNoiseBurst(dur = 0.05, gain = 0.08, hp = 4000) {
+        if (!state.audioEnabled) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const buffer = ctx.createBuffer(
+          1,
+          ctx.sampleRate * dur,
+          ctx.sampleRate,
+        );
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = "highpass";
+        filter.frequency.value = hp;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(gain, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+        src.connect(filter);
+        filter.connect(g);
+        g.connect(ctx.destination);
+        src.start();
+      }
+
+      /* ---------- Canvas / Game ---------- */
+      const canvas = document.getElementById("game-canvas");
+      const ctx2 = canvas.getContext("2d");
+      const W = 480,
+        H = 680;
+
+      // roundRect polyfill
+      if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (
+          x,
+          y,
+          w,
+          h,
+          r,
+        ) {
+          if (typeof r === "number") r = [r, r, r, r];
+          this.beginPath();
+          this.moveTo(x + r[0], y);
+          this.arcTo(x + w, y, x + w, y + h, r[1]);
+          this.arcTo(x + w, y + h, x, y + h, r[2]);
+          this.arcTo(x, y + h, x, y, r[3]);
+          this.arcTo(x, y, x + w, y, r[0]);
+          this.closePath();
+          return this;
+        };
+      }
+
+      const LANE_COLORS = ["#FF6B6B", "#FFD23F", "#4ADE80", "#38BDF8"];
+      const LANE_KEYS = ["d", "f", "j", "k"];
+      const FALL_TIME = 1700;
+      const PERFECT_WIN = 75;
+      const GOOD_WIN = 150;
+
+      let game = null;
+
+      class Game {
+        constructor(level) {
+          this.level = level;
+          this.notes = [];
+          this.particles = [];
+          this.popups = [];
+          this.laneFlash = [0, 0, 0, 0];
+          this.score = 0;
+          this.combo = 0;
+          this.maxCombo = 0;
+          this.lives = 3;
+          this.hits = { perfect: 0, good: 0, miss: 0 };
+          this.elapsed = 0;
+          this.startTime = 0;
+          this.totalPauseMs = 0;
+          this.pauseStart = 0;
+          this.paused = false;
+          this.running = false;
+          this.lastBeatIdx = -1;
+          this.beatPulse = 0;
+          this.endTime = (level.duration + 2) * 1000;
+          this.countdownMs = 2200;
+          this.countingDown = true;
+          this.shake = 0;
+          this.gameOver = false;
+          this.generate();
+        }
+
+        generate() {
+          const beatMs = 60000 / this.level.bpm;
+          const subMs = beatMs / 2;
+          const total = Math.floor((this.level.duration * 1000) / subMs);
+          let lastLane = -1;
+          for (let i = 0; i < total; i++) {
+            const time = i * subMs + 1800;
+            if (Math.random() < this.level.density) {
+              let lane;
+              do {
+                lane = Math.floor(Math.random() * 4);
+              } while (lane === lastLane && Math.random() < 0.55);
+              this.notes.push({ time, lane, hit: false, missed: false });
+              lastLane = lane;
+              if (this.level.difficulty !== "Easy" && Math.random() < 0.12) {
+                let l2;
+                do {
+                  l2 = Math.floor(Math.random() * 4);
+                } while (l2 === lane);
+                this.notes.push({ time, lane: l2, hit: false, missed: false });
+              }
+            }
+          }
+        }
+
+        start() {
+          ensureAudio();
+          this.running = true;
+          this.lastFrame = performance.now();
+          requestAnimationFrame((t) => this.loop(t));
+        }
+
+        pause() {
+          if (this.paused || !this.running) return;
+          this.paused = true;
+          this.pauseStart = performance.now();
+        }
+        resume() {
+          if (!this.paused) return;
+          this.totalPauseMs += performance.now() - this.pauseStart;
+          this.paused = false;
+        }
+
+        loop(now) {
+          if (!this.running) return;
+          const dt = now - this.lastFrame;
+          this.lastFrame = now;
+
+          if (!this.paused) {
+            // Countdown first
+            if (this.countingDown) {
+              this.countdownMs -= dt;
+              if (this.countdownMs <= 0) {
+                this.countingDown = false;
+                this.startTime = now;
+              }
+            } else {
+              this.elapsed = now - this.startTime - this.totalPauseMs;
+              // Beat triggers
+              const beatMs = 60000 / this.level.bpm;
+              const beatIdx = Math.floor(this.elapsed / beatMs);
+              if (beatIdx !== this.lastBeatIdx && beatIdx >= 0) {
+                this.lastBeatIdx = beatIdx;
+                this.beatPulse = 1;
+                this.playKick(beatIdx % 4 === 0);
+                if (beatIdx % 2 === 1) this.playHat();
+              }
+              this.beatPulse *= 0.9;
+
+              // Check misses
+              for (const n of this.notes) {
+                if (!n.hit && !n.missed && this.elapsed - n.time > GOOD_WIN) {
+                  n.missed = true;
+                  this.registerMiss(n.lane);
+                }
+              }
+
+              // End conditions
+              if (this.elapsed >= this.endTime) {
+                this.finish(false);
+                return;
+              }
+
+              // Update effects
+              for (let i = this.particles.length - 1; i >= 0; i--) {
+                const p = this.particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.35;
+                p.vx *= 0.98;
+                p.life--;
+                p.rot += p.vr;
+                if (p.life <= 0) this.particles.splice(i, 1);
+              }
+              for (let i = this.popups.length - 1; i >= 0; i--) {
+                const p = this.popups[i];
+                p.y -= 1.1;
+                p.life--;
+                if (p.life <= 0) this.popups.splice(i, 1);
+              }
+              for (let i = 0; i < 4; i++) this.laneFlash[i] *= 0.85;
+              this.shake *= 0.82;
+            }
+          }
+
+          this.render();
+          this.updateHUD();
+          requestAnimationFrame((t) => this.loop(t));
+        }
+
+        playKick(accent) {
+          if (!state.audioEnabled) return;
+          playTone({
+            freq: accent ? 140 : 100,
+            type: "sine",
+            dur: 0.16,
+            gain: accent ? 0.42 : 0.28,
+            slideTo: 42,
+            attack: 0.002,
+          });
+        }
+        playHat() {
+          playNoiseBurst(0.04, 0.05, 6000);
+        }
+        playHitSound(lane, perfect) {
+          const freqs = [330, 440, 550, 660];
+          playTone({
+            freq: freqs[lane],
+            type: "triangle",
+            dur: 0.13,
+            gain: 0.22,
+            slideTo: freqs[lane] * 1.4,
+            attack: 0.001,
+          });
+          if (perfect)
+            playTone({
+              freq: freqs[lane] * 2,
+              type: "sine",
+              dur: 0.18,
+              gain: 0.12,
+              attack: 0.001,
+            });
+        }
+        playMissSound() {
+          playTone({
+            freq: 170,
+            type: "sawtooth",
+            dur: 0.18,
+            gain: 0.14,
+            slideTo: 80,
+            attack: 0.002,
+          });
+        }
+
+        handleKey(lane) {
+          if (!this.running || this.paused) return;
+          if (this.countingDown) return;
+          this.laneFlash[lane] = 1;
+          let nearest = null,
+            dist = Infinity;
+          for (const n of this.notes) {
+            if (n.lane !== lane || n.hit || n.missed) continue;
+            const d = Math.abs(n.time - this.elapsed);
+            if (d < dist) {
+              dist = d;
+              nearest = n;
+            }
+          }
+          if (nearest && dist < GOOD_WIN) {
+            nearest.hit = true;
+            const perfect = dist < PERFECT_WIN;
+            this.registerHit(lane, perfect);
+          }
+        }
+
+        registerHit(lane, perfect) {
+          const base = perfect ? 100 : 50;
+          const bonus = Math.floor(this.combo / 10) * 15;
+          this.score += base + bonus;
+          this.combo++;
+          this.maxCombo = Math.max(this.maxCombo, this.combo);
+          if (perfect) this.hits.perfect++;
+          else this.hits.good++;
+          this.spawnParticles(lane, perfect ? 16 : 10, perfect);
+          this.popups.push({
+            x: lane * (W / 4) + W / 8,
+            y: H - 130,
+            text: perfect ? "PERFECT" : "GOOD",
+            color: perfect ? "#4ADE80" : "#FFD23F",
+            life: 55,
+          });
+          this.playHitSound(lane, perfect);
+          if (navigator.vibrate) navigator.vibrate(perfect ? 28 : 14);
+        }
+
+        registerMiss(lane) {
+          this.combo = 0;
+          this.lives--;
+          this.hits.miss++;
+          this.shake = 8;
+          this.popups.push({
+            x: lane * (W / 4) + W / 8,
+            y: H - 130,
+            text: "MISS",
+            color: "#FF6B6B",
+            life: 50,
+          });
+          this.playMissSound();
+          if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+          if (this.lives <= 0) {
+            this.finish(true);
+          }
+        }
+
+        spawnParticles(lane, count, perfect) {
+          if (state.motionReduced) count = Math.min(4, count);
+          const cx = lane * (W / 4) + W / 8;
+          const cy = H - 95;
+          const baseColor = LANE_COLORS[lane];
+          for (let i = 0; i < count; i++) {
+            const ang = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+            const sp = 3 + Math.random() * 5;
+            this.particles.push({
+              x: cx,
+              y: cy,
+              vx: Math.cos(ang) * sp,
+              vy: Math.sin(ang) * sp - 2,
+              size: 5 + Math.random() * 7,
+              color:
+                Math.random() < 0.35
+                  ? "#FFFFFF"
+                  : perfect && Math.random() < 0.3
+                    ? "#FFD23F"
+                    : baseColor,
+              life: 28 + Math.random() * 22,
+              rot: Math.random() * Math.PI * 2,
+              vr: (Math.random() - 0.5) * 0.4,
+            });
+          }
+        }
+
+        finish(gameOver) {
+          if (!this.running) return;
+          this.running = false;
+          this.gameOver = gameOver;
+          showResults(this, gameOver);
+        }
+
+        updateHUD() {
+          const score = this.score;
+          const combo = this.combo;
+          const total = this.hits.perfect + this.hits.good + this.hits.miss;
+          const acc =
+            total === 0
+              ? 100
+              : Math.round(
+                  ((this.hits.perfect + this.hits.good * 0.5) / total) * 100,
+                );
+          const hearts =
+            "♥".repeat(Math.max(0, this.lives)) +
+            "♡".repeat(Math.max(0, 3 - this.lives));
+          const set = (id, v, idM, vM) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = v;
+            const elm = document.getElementById(idM);
+            if (elm) elm.textContent = vM;
+          };
+          set("hud-score", score, "hud-score-m", score);
+          set("hud-combo", combo + "×", "hud-combo-m", combo + "×");
+          set("hud-accuracy", acc + "%", "hud-accuracy-m", acc + "%");
+          set("hud-lives", hearts, "hud-lives-m", hearts);
+        }
+
+        render() {
+          const c = ctx2;
+          c.save();
+          // Shake
+          if (this.shake > 0.3 && !state.motionReduced) {
+            const sx = (Math.random() - 0.5) * this.shake;
+            const sy = (Math.random() - 0.5) * this.shake;
+            c.translate(sx, sy);
+          }
+
+          // Background
+          const p = this.beatPulse;
+          const grad = c.createLinearGradient(0, 0, 0, H);
+          grad.addColorStop(
+            0,
+            `rgb(${22 + p * 30},${27 + p * 20},${58 + p * 40})`,
+          );
+          grad.addColorStop(
+            1,
+            `rgb(${14 + p * 18},${18 + p * 14},${38 + p * 25})`,
+          );
+          c.fillStyle = grad;
+          c.fillRect(0, 0, W, H);
+
+          // Lanes
+          const laneW = W / 4;
+          const hitY = H - 100;
+          for (let i = 0; i < 4; i++) {
+            const x = i * laneW;
+            c.fillStyle =
+              i % 2 === 0 ? "rgba(255,255,255,.025)" : "rgba(255,255,255,.05)";
+            c.fillRect(x, 0, laneW, H);
+            // Lane flash glow
+            if (this.laneFlash[i] > 0.05) {
+              const lg = c.createLinearGradient(0, hitY - 180, 0, hitY + 50);
+              lg.addColorStop(0, "rgba(255,255,255,0)");
+              lg.addColorStop(1, LANE_COLORS[i]);
+              c.globalAlpha = this.laneFlash[i] * 0.55;
+              c.fillStyle = lg;
+              c.fillRect(x, hitY - 180, laneW, 230);
+              c.globalAlpha = 1;
+            }
+            if (i > 0) {
+              c.strokeStyle = "rgba(255,255,255,.08)";
+              c.lineWidth = 2;
+              c.beginPath();
+              c.moveTo(x, 0);
+              c.lineTo(x, H);
+              c.stroke();
+            }
+          }
+
+          // Hit zones
+          for (let i = 0; i < 4; i++) {
+            const x = i * laneW + 12;
+            const w = laneW - 24;
+            c.fillStyle = LANE_COLORS[i];
+            c.globalAlpha = 0.18 + this.laneFlash[i] * 0.45;
+            c.roundRect(x, hitY - 26, w, 56, 14);
+            c.fill();
+            c.globalAlpha = 1;
+            c.strokeStyle = LANE_COLORS[i];
+            c.lineWidth = 3 + this.laneFlash[i] * 2;
+            c.roundRect(x, hitY - 26, w, 56, 14);
+            c.stroke();
+          }
+
+          // Hit line
+          c.fillStyle = "rgba(255,255,255,.9)";
+          c.fillRect(0, hitY - 2, W, 4);
+
+          // Notes
+          for (const n of this.notes) {
+            if (n.hit) continue;
+            const dt = n.time - this.elapsed;
+            if (dt > FALL_TIME) continue;
+            if (n.missed && dt < -GOOD_WIN - 200) continue;
+            const progress = 1 - dt / FALL_TIME;
+            const y = progress * hitY;
+            if (y < -40) continue;
+            const x = n.lane * laneW + 14;
+            const nw = laneW - 28;
+            const nh = 34;
+            // Shadow
+            c.fillStyle = "rgba(0,0,0,.35)";
+            c.roundRect(x + 3, y + 4, nw, nh, 12);
+            c.fill();
+            // Body
+            c.fillStyle = n.missed ? "#3a3f5c" : LANE_COLORS[n.lane];
+            c.roundRect(x, y, nw, nh, 12);
+            c.fill();
+            // Highlight stripe
+            c.fillStyle = "rgba(255,255,255,.45)";
+            c.roundRect(x + 5, y + 5, nw - 10, 7, 4);
+            c.fill();
+            // Border
+            c.strokeStyle = "#0E1330";
+            c.lineWidth = 3;
+            c.roundRect(x, y, nw, nh, 12);
+            c.stroke();
+            // Inner shine dot
+            c.fillStyle = "rgba(255,255,255,.55)";
+            c.beginPath();
+            c.arc(x + nw - 12, y + nh / 2, 3, 0, Math.PI * 2);
+            c.fill();
+          }
+
+          // Particles
+          for (const p of this.particles) {
+            c.save();
+            c.translate(p.x, p.y);
+            c.rotate(p.rot);
+            c.globalAlpha = Math.min(1, p.life / 30);
+            c.fillStyle = p.color;
+            c.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            c.strokeStyle = "#0E1330";
+            c.lineWidth = 2;
+            c.strokeRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            c.restore();
+          }
+          c.globalAlpha = 1;
+
+          // Popups
+          for (const p of this.popups) {
+            c.save();
+            c.globalAlpha = Math.min(1, p.life / 30);
+            c.font = "bold 26px Fredoka, sans-serif";
+            c.textAlign = "center";
+            c.lineWidth = 5;
+            c.strokeStyle = "#0E1330";
+            c.strokeText(p.text, p.x, p.y);
+            c.fillStyle = p.color;
+            c.fillText(p.text, p.x, p.y);
+            c.restore();
+          }
+          c.globalAlpha = 1;
+
+          // Combo (center-top)
+          if (this.combo >= 4) {
+            c.save();
+            const sc = 1 + Math.min(0.3, this.combo * 0.01);
+            c.translate(W / 2, 70);
+            c.scale(sc, sc);
+            c.font = "bold 36px Fredoka, sans-serif";
+            c.textAlign = "center";
+            c.lineWidth = 6;
+            c.strokeStyle = "#0E1330";
+            const grad2 = c.createLinearGradient(0, -20, 0, 20);
+            grad2.addColorStop(0, "#FFD23F");
+            grad2.addColorStop(1, "#FF6B6B");
+            c.strokeText(this.combo + " COMBO", 0, 0);
+            c.fillStyle = grad2;
+            c.fillText(this.combo + " COMBO", 0, 0);
+            c.restore();
+          }
+
+          // Lane key labels
+          c.font = "bold 18px Fredoka, sans-serif";
+          c.textAlign = "center";
+          for (let i = 0; i < 4; i++) {
+            const x = i * laneW + laneW / 2;
+            c.fillStyle = "rgba(255,255,255,.65)";
+            c.fillText(["D", "F", "J", "K"][i], x, H - 18);
+          }
+
+          // Progress bar
+          const prog = Math.min(1, Math.max(0, this.elapsed / this.endTime));
+          c.fillStyle = "rgba(255,255,255,.15)";
+          c.fillRect(16, 16, W - 32, 8);
+          c.fillStyle = "#4ADE80";
+          c.roundRect(16, 16, (W - 32) * prog, 8, 4);
+          c.fill();
+
+          // Countdown
+          if (this.countingDown) {
+            c.fillStyle = "rgba(14,19,48,.6)";
+            c.fillRect(0, 0, W, H);
+            const num = Math.ceil(this.countdownMs / 700);
+            const label = num > 0 ? String(num) : "GO!";
+            c.save();
+            c.translate(W / 2, H / 2);
+            const phase = (this.countdownMs % 700) / 700;
+            const sc = 1 + (1 - phase) * 0.5;
+            c.scale(sc, sc);
+            c.globalAlpha = phase * 0.9 + 0.1;
+            c.font = "bold 120px Fredoka, sans-serif";
+            c.textAlign = "center";
+            c.textBaseline = "middle";
+            c.lineWidth = 8;
+            c.strokeStyle = "#0E1330";
+            c.strokeText(label, 0, 0);
+            c.fillStyle = label === "GO!" ? "#4ADE80" : "#FFD23F";
+            c.fillText(label, 0, 0);
+            c.restore();
+            c.globalAlpha = 1;
+            c.textBaseline = "alphabetic";
+            c.font = "bold 18px Fredoka, sans-serif";
+            c.fillStyle = "#fff";
+            c.textAlign = "center";
+            c.fillText("Get ready", W / 2, H / 2 + 90);
+          }
+
+          // Paused overlay
+          if (this.paused) {
+            c.fillStyle = "rgba(14,19,48,.75)";
+            c.fillRect(0, 0, W, H);
+            c.fillStyle = "#fff";
+            c.font = "bold 56px Fredoka, sans-serif";
+            c.textAlign = "center";
+            c.fillText("PAUSED", W / 2, H / 2);
+            c.font = "600 18px Plus Jakarta Sans, sans-serif";
+            c.fillStyle = "rgba(255,255,255,.75)";
+            c.fillText("Press Space or tap pause to resume", W / 2, H / 2 + 36);
+          }
+
+          c.restore();
+        }
+      }
+
+      /* ---------- Navigation ---------- */
+      function showScreen(name) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        const el = document.getElementById("screen-" + name);
+        if (el) el.classList.add("active");
+        state.screen = name;
+        const hud = document.getElementById("hud-top");
+        if (name === "game") {
+          hud.classList.remove("hidden");
+          hud.classList.add("grid");
+        } else {
+          hud.classList.add("hidden");
+          hud.classList.remove("grid");
+        }
+      }
+
+      function showStart() {
+        showScreen("start");
+      }
+      function showLevels() {
+        renderLevels();
+        showScreen("levels");
+      }
+      function quickStart() {
+        startLevel(1);
+      }
+
+      const colorBgMap = {
+        coral: "var(--coral)",
+        yellow: "var(--yellow)",
+        green: "var(--green)",
+        sky: "var(--sky)",
+      };
+      const colorTextMap = {
+        coral: "#fff",
+        yellow: "var(--navy)",
+        green: "var(--navy)",
+        sky: "var(--navy)",
+      };
+
+      function renderLevels() {
+        const grid = document.getElementById("level-grid");
+        grid.innerHTML = "";
+        levels.forEach((level) => {
+          const unlocked = state.unlockedLevels.includes(level.id);
+          const card = document.createElement("button");
+          card.className = "level-card" + (unlocked ? "" : " locked");
+          card.style.background = unlocked
+            ? colorBgMap[level.color]
+            : "#E5E7EC";
+          card.style.color = unlocked ? colorTextMap[level.color] : "#9CA3AF";
+          if (!unlocked) card.setAttribute("disabled", "true");
+          const hs = state.highScores[level.id] || 0;
+          const stars = hs > 5000 ? 3 : hs > 2000 ? 2 : hs > 0 ? 1 : 0;
+          card.innerHTML = `
+      <div class="pattern"></div>
+      <div class="relative">
+        <div class="flex items-start justify-between mb-3">
+          <div class="font-display font-bold text-3xl leading-none">#${level.id}</div>
+          ${
+            unlocked
+              ? `<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md" style="background:rgba(0,0,0,.15)">${level.difficulty}</span>`
+              : `<svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm0 2a3 3 0 013 3v3H9V6a3 3 0 013-3z"/></svg>`
+          }
+        </div>
+        <div class="font-display font-bold text-xl mb-1">${level.name}</div>
+        <div class="text-xs font-semibold opacity-80 mb-3">${level.bpm} BPM · ${level.duration}s</div>
+        ${
+          unlocked
+            ? `
+          <div class="flex gap-1 items-center">
+            ${[1, 2, 3]
+              .map(
+                (i) => `
+              <svg width="20" height="20" fill="${i <= stars ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="opacity:${i <= stars ? "1" : ".4"}">
+                <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" stroke-linejoin="round"/>
+              </svg>
+            `,
+              )
+              .join("")}
+            ${hs > 0 ? `<span class="text-xs font-bold ml-2 opacity-80">${hs}</span>` : ""}
+          </div>
+        `
+            : `
+          <div class="text-xs font-bold opacity-70">Clear previous level to unlock</div>
+        `
+        }
+      </div>
+    `;
+          if (unlocked) {
+            card.addEventListener("click", () => startLevel(level.id));
+          } else {
+            card.addEventListener("click", () =>
+              showToast("Locked — clear the previous level first"),
+            );
+          }
+          grid.appendChild(card);
+        });
+      }
+
+      function startLevel(id) {
+        ensureAudio();
+        const level = levels.find((l) => l.id === id);
+        if (!level) return;
+        state.currentLevelId = id;
+        showScreen("game");
+        if (game) game.running = false;
+        game = new Game(level);
+        game.start();
+      }
+
+      function quitGame() {
+        if (game) game.running = false;
+        game = null;
+        showLevels();
+        showToast("Level quit");
+      }
+
+      function togglePause() {
+        if (!game || !game.running) return;
+        if (game.paused) {
+          game.resume();
+          showToast("Resumed");
+        } else {
+          game.pause();
+          showToast("Paused");
+        }
+      }
+
+      function replayLevel() {
+        startLevel(state.currentLevelId);
+      }
+      function nextLevel() {
+        const n = state.currentLevelId + 1;
+        if (n <= levels.length) startLevel(n);
+        else {
+          showToast("You cleared every level — master!");
+          showLevels();
+        }
+      }
+
+      function showResults(g, gameOver) {
+        const total = g.hits.perfect + g.hits.good + g.hits.miss;
+        const acc =
+          total === 0
+            ? 0
+            : Math.round(((g.hits.perfect + g.hits.good * 0.5) / total) * 100);
+
+        document.getElementById("result-perfect").textContent = g.hits.perfect;
+        document.getElementById("result-good").textContent = g.hits.good;
+        document.getElementById("result-miss").textContent = g.hits.miss;
+        document.getElementById("result-score").textContent = g.score;
+        document.getElementById("result-combo").textContent = g.maxCombo + "×";
+        document.getElementById("result-acc").textContent = acc + "%";
+
+        const title = document.getElementById("results-title");
+        const sub = document.getElementById("results-subtitle");
+        if (gameOver) {
+          title.textContent = "Out of lives";
+          title.style.color = "var(--coral)";
+          sub.textContent = "The run ended early — give it another shot.";
+        } else if (acc >= 92) {
+          title.textContent = "Flawless!";
+          title.style.color = "var(--green)";
+          sub.textContent = "Masterful timing. Encore?";
+        } else if (acc >= 75) {
+          title.textContent = "Level Complete!";
+          title.style.color = "var(--navy)";
+          sub.textContent = "Solid run. Try again for a higher score.";
+        } else {
+          title.textContent = "Complete!";
+          title.style.color = "var(--navy)";
+          sub.textContent = "Good effort — practice makes perfect.";
+        }
+
+        // Stars
+        let stars = 0;
+        if (!gameOver) {
+          if (g.score > 1200) stars = 1;
+          if (g.score > 3500) stars = 2;
+          if (g.score > 6500 && acc > 85) stars = 3;
+        }
+        const starsBox = document.getElementById("result-stars");
+        starsBox.innerHTML = "";
+        for (let i = 1; i <= 3; i++) {
+          const lit = i <= stars;
+          const s = document.createElement("div");
+          s.className = "result-star" + (lit ? " lit" : "");
+          s.style.color = lit ? "var(--yellow)" : "#D1D5DB";
+          s.innerHTML = `<svg viewBox="0 0 24 24" width="54" height="54" fill="${lit ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+          starsBox.appendChild(s);
+        }
+
+        // Save progress
+        if (!gameOver) {
+          const id = state.currentLevelId;
+          if (!state.highScores[id] || g.score > state.highScores[id]) {
+            state.highScores[id] = g.score;
+          }
+          const next = id + 1;
+          if (next <= levels.length && !state.unlockedLevels.includes(next)) {
+            state.unlockedLevels.push(next);
+            setTimeout(() => showToast("Next level unlocked!"), 600);
+          }
+        }
+
+        // Next button
+        const nb = document.getElementById("next-level-btn");
+        if (gameOver || state.currentLevelId >= levels.length) {
+          nb.style.display = "none";
+        } else {
+          nb.style.display = "";
+        }
+
+        showScreen("results");
+      }
+
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => t.classList.remove("show"), 1800);
+      }
+
+      /* ---------- Input ---------- */
+      document.addEventListener("keydown", (e) => {
+        if (e.repeat) return;
+        if (state.screen === "game" && game) {
+          const k = e.key.toLowerCase();
+          const lane = LANE_KEYS.indexOf(k);
+          if (lane >= 0) {
+            e.preventDefault();
+            game.handleKey(lane);
+            return;
+          }
+          if (e.key === " ") {
+            e.preventDefault();
+            togglePause();
+            return;
+          }
+          if (e.key === "Escape") {
+            quitGame();
+            return;
+          }
+        }
+        if (state.screen !== "game") {
+          if (e.key === "Enter" && state.screen === "start") {
+            showLevels();
+          }
+        }
+      });
+
+      canvas.addEventListener("pointerdown", (e) => {
+        if (!game || !game.running || game.paused || game.countingDown) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * W;
+        const lane = Math.max(0, Math.min(3, Math.floor(x / (W / 4))));
+        game.handleKey(lane);
+      });
+
+      document.querySelectorAll(".lane-btn").forEach((btn) => {
+        btn.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          if (!game || !game.running) return;
+          const lane = parseInt(btn.dataset.lane);
+          game.handleKey(lane);
+        });
+      });
+
+      /* ---------- Toggles ---------- */
+      document.getElementById("audio-toggle").addEventListener("click", () => {
+        state.audioEnabled = !state.audioEnabled;
+        const btn = document.getElementById("audio-toggle");
+        btn.classList.toggle("toggled-off", !state.audioEnabled);
+        showToast(state.audioEnabled ? "Sound on" : "Sound off");
+        if (state.audioEnabled) ensureAudio();
+      });
+
+      document.getElementById("motion-toggle").addEventListener("click", () => {
+        state.motionReduced = !state.motionReduced;
+        document.body.classList.toggle("reduced-motion", state.motionReduced);
+        const btn = document.getElementById("motion-toggle");
+        btn.classList.toggle("toggled-off", state.motionReduced);
+        showToast(
+          state.motionReduced ? "Reduced motion on" : "Reduced motion off",
+        );
+      });
+
+      /* ---------- Init ---------- */
+      renderLevels();
+    </script>
+  </body>
+</html>
