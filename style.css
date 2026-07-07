@@ -1,0 +1,156 @@
+  :root{
+    --sky:#38BDF8;
+    --yellow:#FFD23F;
+    --coral:#FF6B6B;
+    --green:#4ADE80;
+    --white:#FFFFFF;
+    --navy:#161B3A;
+    --navy-2:#252B5A;
+    --cream:#FFF6E0;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Plus Jakarta Sans',sans-serif;
+    color:var(--navy);
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,210,63,.22) 0%, transparent 42%),
+      radial-gradient(circle at 88% 72%, rgba(255,107,107,.20) 0%, transparent 42%),
+      radial-gradient(circle at 50% 50%, rgba(56,189,248,.12) 0%, transparent 60%),
+      linear-gradient(180deg,#FFF6E0 0%, #FFE2C7 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .font-display{font-family:'Fredoka',sans-serif;letter-spacing:-.015em}
+
+  /* Chunky UI primitives */
+  .chunky-card{
+    background:#fff;
+    border:4px solid var(--navy);
+    border-radius:28px;
+    box-shadow:10px 10px 0 var(--navy);
+  }
+  .chunky-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:14px 24px;
+    font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;
+    border:4px solid var(--navy);border-radius:18px;
+    box-shadow:6px 6px 0 var(--navy);
+    cursor:pointer;user-select:none;
+    background:#fff;color:var(--navy);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .chunky-btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--navy)}
+  .chunky-btn:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--navy)}
+  .chunky-btn.primary{background:var(--coral);color:#fff}
+  .chunky-btn.sky{background:var(--sky);color:var(--navy)}
+  .chunky-btn.yellow{background:var(--yellow);color:var(--navy)}
+  .chunky-btn.green{background:var(--green);color:var(--navy)}
+  .chunky-btn.icon{padding:0;width:48px;height:48px;border-radius:14px}
+  .chunky-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:6px 6px 0 var(--navy)!important}
+
+  /* Floating background shapes */
+  .float-shape{position:fixed;border:4px solid var(--navy);pointer-events:none;z-index:0}
+  @keyframes float1{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(18px,-26px) rotate(14deg)}}
+  @keyframes float2{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-22px,18px) rotate(-12deg)}}
+
+  /* Equalizer */
+  .eq{display:flex;gap:5px;align-items:flex-end;height:42px}
+  .eq span{
+    display:block;width:8px;border-radius:3px 3px 0 0;
+    border:2.5px solid var(--navy);
+    animation:eq 1s ease-in-out infinite alternate;
+    box-shadow:2px 2px 0 var(--navy);
+  }
+  @keyframes eq{0%{height:25%}100%{height:100%}}
+  body.reduced-motion .eq span,
+  body.reduced-motion .float-shape{animation:none!important}
+
+  /* Screens */
+  .screen{display:none;animation:fadeIn .35s ease}
+  .screen.active{display:flex}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Level cards */
+  .level-card{
+    border:4px solid var(--navy);
+    border-radius:20px;
+    box-shadow:6px 6px 0 var(--navy);
+    padding:16px;cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+    position:relative;overflow:hidden;
+  }
+  .level-card:hover:not(.locked){transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--navy)}
+  .level-card.locked{background:#E5E7EC;cursor:not-allowed}
+  .level-card .pattern{
+    position:absolute;inset:0;opacity:.18;pointer-events:none;
+    background-image:radial-gradient(circle, var(--navy) 2px, transparent 2px);
+    background-size:18px 18px;
+  }
+
+  /* Key caps */
+  .key-cap{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:44px;height:44px;
+    background:#fff;border:3.5px solid var(--navy);border-radius:12px;
+    box-shadow:3px 3px 0 var(--navy);
+    font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;
+  }
+
+  /* HUD pills */
+  .hud-pill{
+    border:3px solid var(--navy);border-radius:14px;
+    padding:8px 14px;min-width:90px;
+    box-shadow:3px 3px 0 var(--navy);
+  }
+  .hud-pill .label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+  .hud-pill .value{font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;line-height:1}
+
+  /* Canvas */
+  canvas{display:block;background:#0E1330;border-radius:18px;width:100%;height:auto;max-width:480px;aspect-ratio:480/680;border:4px solid var(--navy);box-shadow:6px 6px 0 var(--navy)}
+
+  /* Toast */
+  .toast{
+    position:fixed;bottom:24px;left:50%;
+    transform:translateX(-50%) translateY(140%);
+    background:var(--navy);color:#fff;
+    padding:12px 22px;border-radius:14px;
+    border:3px solid var(--navy);
+    box-shadow:4px 4px 0 var(--coral);
+    font-weight:700;font-size:14px;z-index:100;
+    transition:transform .3s ease;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  /* Result stars */
+  .result-star{
+    width:54px;height:54px;
+    transition:transform .3s ease;
+  }
+  .result-star.lit{animation:starPop .5s ease}
+  @keyframes starPop{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.3) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
+
+  /* Subtle pulse for live elements */
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  .pulse-live{animation:pulse 1.2s ease-in-out infinite}
+
+  /* Combo flame text */
+  .combo-flame{
+    background:linear-gradient(180deg,#FFD23F 0%,#FF6B6B 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+
+  /* Toggle indicator */
+  .toggle-dot{transition:transform .2s ease}
+  .toggled-off{opacity:.45}
+  .toggled-off .toggle-dot{transform:translateX(-14px)}
+
+  /* Mobile lane buttons (visible on touch) */
+  .lane-touch{display:none}
+  @media (hover:none){.lane-touch{display:grid}}
+
+  /* Sticky stage bar */
+  .stage-wrap{position:relative;z-index:5}
+
+  /* Focus ring */
+  button:focus-visible,.level-card:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
